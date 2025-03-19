@@ -1,0 +1,9 @@
+.venv
+__pycache__/
+.DS_Store
+zig/
+old/
+obj_dir/
+**/*.vcd
+slpp_all/
+build/
