@@ -7,3 +7,6 @@ obj_dir/
 **/*.vcd
 slpp_all/
 build/
+frames/
+pillow/
+log.txt
