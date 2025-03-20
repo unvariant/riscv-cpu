@@ -60,7 +60,7 @@ module VGA (
     logic [$clog2($size(vram)) -1:0] idx;
     assign idx = i_signals.wdata[$size(idx)-1:0];
 
-    // only support
+    // only support word writes
     always @(posedge clk) begin
         if (i_signals.memw && i_signals.memt == StoreWord) begin
             vram[idx>>2] = i_signals.reg2;

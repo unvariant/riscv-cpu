@@ -6,11 +6,11 @@ module CPU (
     output logic [11:0] leds,
     output logic o_clk,
 
+    output logic vga_hsync,
+    output logic vga_vsync,
     output logic [3:0] vga_r,
     output logic [3:0] vga_g,
-    output logic [3:0] vga_b,
-    output logic vga_hsync,
-    output logic vga_vsync
+    output logic [3:0] vga_b
 );
     logic clk;
     assign clk = i_clk;
