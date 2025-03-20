@@ -1,9 +1,10 @@
 import Common::*;
 
 module ALU (
-    input  logic   clk,
-    input  logic   rst,
-    input  Signals i_signals,
+    input logic   clk,
+    input logic   rst,
+    input Signals i_signals,
+
     output Signals o_signals
 );
 

@@ -5,7 +5,7 @@ module CPUBench;
     bit rst = 0;
 
     bit ignore;
-    bit [6:0] leds;
+    bit [11:0] leds;
     logic vsync;
     logic hsync;
     logic [3:0] red;
@@ -15,13 +15,13 @@ module CPUBench;
     CPU cpu_i (
         .i_clk(clk),
         .i_rst(rst),
-        .leds (leds),
+        .leds(leds),
         .o_clk(ignore),
-        .vsync(vsync),
-        .hsync(hsync),
-        .red  (red),
-        .green(green),
-        .blue (blue)
+        .vga_hsync(hsync),
+        .vga_vsync(vsync),
+        .vga_r(red),
+        .vga_g(green),
+        .vga_b(blue)
     );
 
     initial begin

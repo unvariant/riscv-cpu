@@ -1,12 +1,13 @@
 import Common::*;
 
 module Register (
-    input  logic          clk,
-    input  logic          rst,
-    input  Signals        i_signals,
-    input  logic          i_wback,
-    input  logic   [ 4:0] i_wreg,
-    input  logic   [31:0] i_wdata,
+    input logic          clk,
+    input logic          rst,
+    input Signals        i_signals,
+    input logic          i_wback,
+    input logic   [ 4:0] i_wreg,
+    input logic   [31:0] i_wdata,
+
     output Signals        o_signals,
     output logic   [31:0] o_debug
 );

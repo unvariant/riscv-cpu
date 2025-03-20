@@ -6,11 +6,11 @@ module CPU (
     output logic [11:0] leds,
     output logic o_clk,
 
-    output logic [3:0] red,
-    output logic [3:0] green,
-    output logic [3:0] blue,
-    output logic hsync,
-    output logic vsync
+    output logic [3:0] vga_r,
+    output logic [3:0] vga_g,
+    output logic [3:0] vga_b,
+    output logic vga_hsync,
+    output logic vga_vsync
 );
     logic clk;
     assign clk = i_clk;
@@ -100,23 +100,34 @@ module CPU (
 
     RAM ram_i (
         .clk(clk),
+        .rst(rst),
         .i_signals(alu_signals),
         .o_signals(mem_signals)
     );
+
+`ifndef SIMULATION
+
+    VGA vga_i (
+        .clk(clk),
+        .clk_100m(i_clk),
+        .rst(rst),
+        .i_signals(alu_signals),
+        .hsync(vga_hsync),
+        .vsync(vga_vsync),
+        .r(vga_r),
+        .g(vga_g),
+        .b(vga_b)
+    );
+
+`endif
 
     Signals wb_signals;
 
     WriteBack write_back_i (
         .clk(clk),
-        .clk_100m(i_clk),
         .rst(rst),
         .i_signals(mem_signals),
-        .o_signals(wb_signals),
-        .red(red),
-        .green(green),
-        .blue(blue),
-        .hsync(hsync),
-        .vsync(vsync)
+        .o_signals(wb_signals)
     );
 
 endmodule

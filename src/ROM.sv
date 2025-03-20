@@ -1,8 +1,9 @@
 import Common::*;
 
 module ROM (
-    input  logic   clk,
-    input  Signals i_signals,
+    input logic   clk,
+    input Signals i_signals,
+
     output Signals o_signals
 );
 

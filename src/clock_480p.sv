@@ -1,9 +1,10 @@
 module clock_480p (
-    input  wire logic clk_100m,       // input clock (100 MHz)
-    input  wire logic rst,            // reset
-    output logic      clk_pix,        // pixel clock
-    output logic      clk_pix_x,
-    output logic      clk_pix_locked  // pixel clock locked?
+    input wire logic clk_100m,  // input clock (100 MHz)
+    input wire logic rst,       // reset
+
+    output logic clk_pix,        // pixel clock
+    output logic clk_pix_x,
+    output logic clk_pix_locked  // pixel clock locked?
 );
 
     localparam MULT_MASTER = 63;  // master clock multiplier (2.000-64.000)

@@ -1,9 +1,10 @@
 import Common::*;
 
 module PC (
-    input  logic   clk,
-    input  logic   rst,
-    input  Signals i_signals,
+    input logic   clk,
+    input logic   rst,
+    input Signals i_signals,
+
     output Signals o_signals
 );
 
