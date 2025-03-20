@@ -31,13 +31,6 @@ module WriteBack (
         endcase
     end
 
-    parameter int RAM_WORDS = (36 * 125 * 64 / 4);
-    (*ram_style = block*) (*ram_block*)
-    logic [31:0] ram[0:RAM_WORDS-1];
-    initial $readmemh("frames.bin", ram);
-    logic [$clog2($size(ram)) -1:0] idx;
-    assign idx = i_signals.wdata[$size(idx)-1:0];
-
     always @(posedge clk) begin
         if (rst) begin
             o_signals.valid <= 0;
@@ -50,53 +43,7 @@ module WriteBack (
             o_signals.pc    <= pc;
             o_signals.wback <= i_signals.wback;
             o_signals.wreg  <= i_signals.wreg;
-
-            case ({
-                i_signals.memr, i_signals.memw
-            })
-                'b10: begin
-                    // o_signals.wdata <= 0;
-                    // if (idk >= 'h2000) begin
-                    o_signals.wdata[32] <= 0;
-                    case (i_signals.memt)
-                        // LoadByte:
-                        // o_signals.wdata[31:0] <= 32'(signed'(ram[idx>>2][(idx&'b11)*8+:8]));
-                        // LoadHalf:
-                        // o_signals.wdata[31:0] <= 32'(signed'(ram[idx>>2][(idx&'b01)*16+:16]));
-                        LoadWord: o_signals.wdata[31:0] <= ram[idx>>2];
-                        // ULoadByte:
-                        // o_signals.wdata[31:0] <= 32'(unsigned'(ram[idx>>2][(idx&'b11)*8+:8]));
-                        // ULoadHalf:
-                        // o_signals.wdata[31:0] <= 32'(unsigned'(ram[idx>>2][(idx&'b01)*16+:16]));
-                        default:  o_signals.wdata[31:0] <= 0;
-                    endcase
-                    // end else if (idx >= 'h1000) begin
-                    //     o_signals.wdata <= 'hffffffff;
-                    // end else begin
-                    //     o_signals.wdata <= 'hffffffff;
-                    // end
-                end
-                'b01: begin
-                    o_signals.wdata <= 0;
-                    if (idx < 512) begin
-                        vram[idx>>2] <= i_signals.reg2;
-                    end else begin
-                        ram[idx>>2] <= i_signals.reg2;
-                    end
-                    // if (idx >= 'h2000) begin
-                    // case (i_signals.memt)
-                        // StoreByte: ram[idx>>2][(idx&'b11)*8+:8] <= i_signals.reg2[7:0];
-                        // StoreHalf: ram[idx>>2][(idx&'b01)*16+:16] <= i_signals.reg2[15:0];
-                        // StoreWord: ram[idx>>2] <= i_signals.reg2;
-                    // endcase
-                    // end else if (idx >= 'h1000) begin
-                    // hardware resources
-                    // end
-                end
-                default: begin
-                    o_signals.wdata <= i_signals.wdata;
-                end
-            endcase
+            o_signals.wdata <= i_signals.wdata;
         end
     end
 
@@ -162,16 +109,16 @@ module WriteBack (
             stallx <= 0;
 
             if (sy == SCREEN) begin
-                line   <= 0;
+                line <= 0;
                 stally <= 0;
                 running <= 0;
             end else begin
                 if (stally == UPSCALE - 1) begin
                     stally <= 0;
-                    line   <= line + WIDTH / UPSCALE / 32;
+                    line <= line + WIDTH / UPSCALE / 32;
                     running <= line + WIDTH / UPSCALE / 32;
                 end else begin
-                    stally <= stally + 1;
+                    stally  <= stally + 1;
                     running <= line;
                 end
             end
@@ -194,7 +141,7 @@ module WriteBack (
     logic sync = 1;
     always @(negedge clk_pix) begin
         // if (sync) begin
-            pixel <= vram[running];
+        pixel <= vram[running];
         // end
         // sync <= !sync;
         // pixel <= ram[line];

@@ -2,6 +2,7 @@ module CPUBench;
 
     bit clk;
     always #1 clk <= !clk;
+    bit rst = 0;
 
     bit ignore;
     bit [6:0] leds;
@@ -13,6 +14,7 @@ module CPUBench;
 
     CPU cpu_i (
         .i_clk(clk),
+        .i_rst(rst),
         .leds (leds),
         .o_clk(ignore),
         .vsync(vsync),
@@ -33,6 +35,8 @@ module CPUBench;
         $display("a3 = %08x", cpu_i.regs_i.registers[13]);
         $display("ra = %08x", cpu_i.regs_i.registers[1]);
         $display("pc = %08x", cpu_i.pc_i.pc);
+        $display("ram[0x00] = %08x", cpu_i.ram_i.ram[0]);
+        $display("ram[0x04] = %08x", cpu_i.ram_i.ram[1]);
         $finish;
     end
 

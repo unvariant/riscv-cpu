@@ -8,6 +8,11 @@ set_property -dict {LOC V14 IOSTANDARD LVCMOS18} [get_ports {leds[3]}]
 set_property -dict {LOC V13 IOSTANDARD LVCMOS18} [get_ports {leds[4]}]
 set_property -dict {LOC V3  IOSTANDARD LVCMOS18} [get_ports {leds[5]}]
 set_property -dict {LOC W3  IOSTANDARD LVCMOS18} [get_ports {leds[6]}]
+set_property -dict {LOC U3  IOSTANDARD LVCMOS18} [get_ports {leds[7]}]
+set_property -dict {LOC P3  IOSTANDARD LVCMOS18} [get_ports {leds[8]}]
+set_property -dict {LOC N3  IOSTANDARD LVCMOS18} [get_ports {leds[9]}]
+set_property -dict {LOC P1  IOSTANDARD LVCMOS18} [get_ports {leds[10]}]
+set_property -dict {LOC L1  IOSTANDARD LVCMOS18} [get_ports {leds[11]}]
 
 # red   = G19, H19, J19, N19
 # green = J17, H17, G17, D17

@@ -3,7 +3,7 @@ import Common::*;
 module CPU (
     input logic i_clk,
     input logic i_rst,
-    output logic [6:0] leds,
+    output logic [11:0] leds,
     output logic o_clk,
 
     output logic [3:0] red,
@@ -43,7 +43,7 @@ module CPU (
     // assign leds[4]   = wb_signals.wback;
     // assign leds[3:0] = wb_signals.wreg;
     logic [31:0] debug;
-    assign leds[6:0] = debug[6:0];
+    assign leds[11:0] = debug[11:0];
 
     Signals fetch_signals;
 
@@ -96,13 +96,21 @@ module CPU (
         .o_signals(alu_signals)
     );
 
+    Signals mem_signals;
+
+    RAM ram_i (
+        .clk(clk),
+        .i_signals(alu_signals),
+        .o_signals(mem_signals)
+    );
+
     Signals wb_signals;
 
     WriteBack write_back_i (
         .clk(clk),
         .clk_100m(i_clk),
         .rst(rst),
-        .i_signals(alu_signals),
+        .i_signals(mem_signals),
         .o_signals(wb_signals),
         .red(red),
         .green(green),
