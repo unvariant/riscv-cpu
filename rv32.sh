@@ -25,7 +25,8 @@ echo "yosys done"
     --xdc "${CONSTRAINTS}" \
     --json "${BUILD}/test.json" \
     --write "${BUILD}/test_routed.json" \
-    --fasm "${BUILD}/test.fasm"
+    --fasm "${BUILD}/test.fasm" \
+    --placer-heap-cell-placement-timeout 0
 
 source "${XRAY_DIR}/utils/environment.sh"
 export XRAY_DATABASE_DIR="${XRAY_DIR}/../prjxray-db/"

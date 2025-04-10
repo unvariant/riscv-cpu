@@ -9,15 +9,14 @@ module WriteBack (
 );
 
     logic [31:0] pc;
-    logic [31:0] next;
-    assign next = i_signals.pc + 4;
+
     always_comb begin
         case (i_signals.cond)
-            Zero:     pc = (i_signals.flags.zero == 1) ? i_signals.branch : next;
-            NotZero:  pc = (i_signals.flags.zero == 0) ? i_signals.branch : next;
-            Carry:    pc = (i_signals.flags.carry == 1) ? i_signals.branch : next;
-            NotCarry: pc = (i_signals.flags.carry == 0) ? i_signals.branch : next;
-            Never:    pc = next;
+            Zero:     pc = (i_signals.flags.zero == 1) ? i_signals.branch : i_signals.pc;
+            NotZero:  pc = (i_signals.flags.zero == 0) ? i_signals.branch : i_signals.pc;
+            Carry:    pc = (i_signals.flags.carry == 1) ? i_signals.branch : i_signals.pc;
+            NotCarry: pc = (i_signals.flags.carry == 0) ? i_signals.branch : i_signals.pc;
+            Never:    pc = i_signals.pc;
             Always:   pc = i_signals.branch;
             default: begin
                 pc = 0;
@@ -25,7 +24,7 @@ module WriteBack (
         endcase
     end
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (rst) begin
             o_signals.valid <= 0;
             o_signals.pc    <= 0;

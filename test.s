@@ -4,6 +4,21 @@
     .equ HEIGHT, 48
 
 _start:
+    addi a0, zero, 7
+    add  a0, a0,   a0
+    nop
+    nop
+    nop
+    nop
+    nop
+    beq  a0, a0, _start
+    
+    addi a0, zero, 256
+    addi a1, zero, -1
+    sw   a1, 0(a0)
+loop:
+    beq  a0, a0, loop
+    
     addi a1, zero, 4 * WIDTH * HEIGHT / 32
     addi a3, zero, 750 - 1
 

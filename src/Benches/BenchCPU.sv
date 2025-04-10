@@ -27,17 +27,21 @@ module CPUBench;
     initial begin
         $dumpfile("sim.vcd");
         $dumpvars;
-        #500;
-        $display("a0 = %08x", cpu_i.regs_i.registers[10]);
-        $display("a0 = %032b", cpu_i.regs_i.registers[10]);
-        $display("a1 = %08x", cpu_i.regs_i.registers[11]);
-        $display("a2 = %08x", cpu_i.regs_i.registers[12]);
-        $display("a3 = %08x", cpu_i.regs_i.registers[13]);
-        $display("ra = %08x", cpu_i.regs_i.registers[1]);
-        $display("pc = %08x", cpu_i.pc_i.pc);
-        $display("ram[0x00] = %08x", cpu_i.ram_i.ram[0]);
-        $display("ram[0x04] = %08x", cpu_i.ram_i.ram[1]);
-        $finish;
+
+        forever begin
+            #2;
+
+            if (cpu_i.pc_i.pc == 128 * 4) begin
+                for (int i = 0; i < 32; i++) begin
+                    $display("x%0d = 0x%08x", i, cpu_i.regs_i.registers[i]);
+                end
+
+                $display("pc = %08x", cpu_i.pc_i.pc);
+
+                $display("mem[0x1000] = 0x%08x", cpu_i.ram_i.ram['h1000/4]);
+                $finish;
+            end
+        end
     end
 
 endmodule

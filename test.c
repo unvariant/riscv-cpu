@@ -1,12 +1,9 @@
-struct Thing {
-  char a;
-  short b;
-} __attribute__((packed));
+volatile unsigned int *framebuffer = (volatile unsigned int *)0x1000000;
 
-struct Thing thing;
-
-struct Thing *_start() {
-  thing.a = 0x11;
-  thing.b = 0x22;
-  return &thing;
+__attribute__((noreturn)) void _start() {
+    for (int i = 0; i < 2 * 48; i++) {
+        framebuffer[i] = 0xffffffff;
+    }
+    while (1) {
+    }
 }

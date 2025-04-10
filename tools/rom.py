@@ -11,14 +11,16 @@ This is a small utility to convert assembly to verilog compatible mem files
 parser = ArgumentParser(
     prog="rom",
 )
-parser.add_argument("file")
-parser.add_argument("outfile")
+parser.add_argument("file", type=str)
+parser.add_argument("outfile", type=str)
 # technically its an elf...
 parser.add_argument("--mc", help="output machine code", action=BooleanOptionalAction)
+parser.add_argument("--zig", help="path to zig binary", type=str)
 
 args = parser.parse_args()
 file = Path(args.file)
 outfile = Path(args.outfile)
+zig = args.zig or "zig"
 
 if not file.exists():
     log.error(f"{str(file)!r} does not exist!")
@@ -27,7 +29,7 @@ log.info("assembling to an elf file")
 
 run(
     [
-        "zig",
+        zig,
         "cc",
         str(file),
         "-mcpu=baseline_rv32+m-a-d-f-c-zicsr",
@@ -58,8 +60,9 @@ code = text.content
 if len(code) % 4 != 0:
     log.error("code size is not a multiple of 4")
 
+nop = b"\x13\x00\x00\x00"
 missing = 128 - len(code) // 4
-code = code.tobytes() + b"\x13\x00\x00\x00" * missing
+code = code.tobytes() + nop * missing
 log.info("emitting verilog mem file")
 
 start = 0

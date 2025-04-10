@@ -1,14 +1,14 @@
 package Opcode;
-    typedef enum {
-        RegImm = 'b00_100_11,
-        RegReg = 'b01_100_11,
-        Load   = 'b00_000_11,
-        Store  = 'b01_000_11,
-        Branch = 'b11_000_11,
-        Jal    = 'b11_011_11,
-        Jalr   = 'b11_001_11,
-        Lui    = 'b01_101_11,
-        Auipc  = 'b00_101_11
+    typedef enum logic [6:0] {
+        RegImm = 7'b00_100_11,
+        RegReg = 7'b01_100_11,
+        Load   = 7'b00_000_11,
+        Store  = 7'b01_000_11,
+        Branch = 7'b11_000_11,
+        Jal    = 7'b11_011_11,
+        Jalr   = 7'b11_001_11,
+        Lui    = 7'b01_101_11,
+        Auipc  = 7'b00_101_11
     } Opcode;
 endpackage
 
@@ -22,8 +22,15 @@ package Op;
         And,
         Shl,
         Shr,
-        Asr
+        Asr,
+        Slt,
+        USlt
     } Operation;
+endpackage
+
+package Mem;
+    // must be power of 2 aligned
+    logic [31:0] framebuffer = 'h1000000;
 endpackage
 
 package Common;
@@ -125,6 +132,8 @@ package Common;
         logic [31:0] pc;
         Insn insn;
 
+        logic [4:0]   rs1;
+        logic [4:0]   rs2;
         logic [31:0]  reg1;
         logic [31:0]  reg2;
         Op::Operation op;

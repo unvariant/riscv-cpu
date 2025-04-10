@@ -10,3 +10,5 @@ build/
 frames/
 pillow/
 log.txt
+**/*.o
+fuzz/

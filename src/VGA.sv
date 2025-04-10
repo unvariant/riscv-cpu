@@ -1,4 +1,5 @@
 import Common::*;
+import Mem::*;
 
 module VGA (
     input logic   clk,
@@ -57,13 +58,15 @@ module VGA (
     parameter UPSCALE = 10;
 
     logic [31:0] vram[0:128-1];
-    logic [$clog2($size(vram)) -1:0] idx;
-    assign idx = i_signals.wdata[$size(idx)-1:0];
+    logic [31:0] idx;
+    logic [31:0] off;
+    assign idx = i_signals.wdata[31:0];
+    assign off = i_signals.wdata[31:0] & (framebuffer - 1);
 
     // only support word writes
     always @(posedge clk) begin
-        if (i_signals.memw && i_signals.memt == StoreWord) begin
-            vram[idx>>2] = i_signals.reg2;
+        if (i_signals.memw && i_signals.memt == StoreWord && idx[24] == 1) begin
+            vram[off>>2] <= i_signals.reg2;
         end
     end
 

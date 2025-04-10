@@ -11,7 +11,7 @@ module ROM (
     logic [31:0] mem[0:127];
     initial $readmemh("rom_file.mem", mem);
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         o_signals.insn <= mem[i_signals.pc>>2];
 
         // $display("== insn dump ==");

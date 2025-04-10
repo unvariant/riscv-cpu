@@ -1,21 +1,27 @@
 import Common::*;
 
 module ImmGen (
-    input logic   clk,
-    input logic   rst,
-    input Signals i_signals,
-
+    input  logic   clk,
+    input  logic   rst,
+    input  logic   stall,
+    input  Signals i_signals,
     output Signals o_signals
 );
 
+    Insn prev;
     Insn insn;
-    assign insn = i_signals.insn;
+    assign insn = stall ? prev : i_signals.insn;
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
+        if (!stall) begin
+            prev <= i_signals.insn;
+        end
+
         if (rst) begin
-            o_signals.imm <= 0;
+            o_signals.imm  <= 0;
+            o_signals.jimm <= 0;
         end else begin
-            case (32'(insn.r.opcode))
+            case (insn.r.opcode)
                 Opcode::RegImm: begin
                     case (insn.i.funct3)
                         'h1:     o_signals.imm <= 32'(insn.i.imm[4:0]);
@@ -40,7 +46,7 @@ module ImmGen (
                 end
             endcase
 
-            case (32'(insn.r.opcode))
+            case (insn.r.opcode)
                 Opcode::RegImm, Opcode::Jalr: begin
                     o_signals.jimm <= 32'(signed'(insn.i.imm));
                 end
