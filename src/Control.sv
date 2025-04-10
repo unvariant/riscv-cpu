@@ -21,8 +21,7 @@ module Control (
             prev_pc   <= i_signals.pc;
         end
 
-        if (rst || !i_signals.valid) begin
-            o_signals.valid <= 0;
+        if (rst) begin
             o_signals.pc    <= 0;
             o_signals.op    <= Op::Add;
             o_signals.wreg  <= 0;
@@ -34,7 +33,6 @@ module Control (
             o_signals.memw  <= 0;
             o_signals.memt  <= LoadByte;
         end else begin
-            o_signals.valid <= i_signals.valid;
             o_signals.pc    <= pc;
             o_signals.pcsel <= insn.r.opcode == Opcode::Jalr;
             o_signals.op    <= Op::Add;
@@ -159,8 +157,7 @@ module Control (
                     endcase
                 end
                 Opcode::Store: begin
-                    `log(
-                        ("found store (valid = %d, funct3 = %01x)", i_signals.valid, insn.s.funct3));
+                    `log(("found store (funct3 = %01x)", insn.s.funct3));
                     o_signals.memr <= 0;
                     o_signals.memw <= 1;
                     case (insn.s.funct3)

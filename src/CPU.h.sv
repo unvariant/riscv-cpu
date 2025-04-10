@@ -127,8 +127,6 @@ package Common;
     } MemType;
 
     typedef struct {
-        logic valid;
-
         logic [31:0] pc;
         Insn insn;
 

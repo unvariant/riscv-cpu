@@ -35,7 +35,6 @@ module ALU (
         o_signals.pc <= i_signals.pc + 4;
 
         if (rst) begin
-            o_signals.valid <= 0;
             // o_signals.pc    <= 0;
             // o_signals.reg2        <= 0;
             o_signals.wback <= 0;
@@ -49,7 +48,6 @@ module ALU (
             o_signals.memw  <= 0;
             // o_signals.memt        <= LoadByte;
         end else begin
-            o_signals.valid <= i_signals.valid;
             // o_signals.pc    <= i_signals.pc + 4;
             o_signals.reg2  <= i_signals.reg2;
             o_signals.wback <= i_signals.wback;

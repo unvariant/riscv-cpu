@@ -26,13 +26,11 @@ module WriteBack (
 
     always_ff @(posedge clk) begin
         if (rst) begin
-            o_signals.valid <= 0;
             o_signals.pc    <= 0;
             o_signals.wback <= 0;
             o_signals.wreg  <= 0;
             o_signals.wdata <= 0;
         end else begin
-            o_signals.valid <= i_signals.valid;
             o_signals.pc    <= pc;
             o_signals.wback <= i_signals.wback;
             o_signals.wreg  <= i_signals.wreg;

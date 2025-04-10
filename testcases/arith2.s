@@ -13,6 +13,9 @@ _start:
 
     add a1, a2, a3
     add a1, a1, a1
+    add a2, a2, a2
     add a1, a1, a1
+    add a2, a2, a2
     add a1, a1, a1
+    add a2, a2, a2
     add a1, a1, a1

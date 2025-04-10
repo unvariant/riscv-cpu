@@ -77,7 +77,6 @@ module RAM (
     assign memrw = {i_signals.memr, i_signals.memw};
 
     always_ff @(posedge clk) begin
-        o_signals.valid  <= i_signals.valid;
         o_signals.pc     <= i_signals.pc;
         o_signals.wback  <= i_signals.wback;
         o_signals.wreg   <= i_signals.wreg;

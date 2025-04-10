@@ -63,7 +63,7 @@ def execute_unicorn(case: Testcase):
         cpu.reg_write(reg, 0)
 
     cpu.emu_start(0, 128 * 4)
-    print(f"{cpu.reg_read(riscv_const.UC_RISCV_REG_PC) = :#x}")
+    # print(f"{cpu.reg_read(riscv_const.UC_RISCV_REG_PC) = :#x}")
 
     regs = [cpu.reg_read(reg) for reg in REGS]
     return Results(regs, b"")

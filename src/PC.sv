@@ -18,12 +18,12 @@ module PC (
 
     always_latch @(posedge clk) begin
         if (rst) begin
-            o_signals.valid <= 0;
-            o_signals.pc <= 0;
+            o_signals.pc   <= 0;
+            o_signals.insn <= 'h13;
         end else if (start && !started) begin
-            o_signals.valid <= 1;
-            o_signals.pc <= 0;
-            started <= 1;
+            o_signals.pc   <= 0;
+            o_signals.insn <= 'h13;
+            started        <= 1;
         end else begin
             /* NO PIPELINING */
             // if (i_signals.valid) begin
@@ -42,11 +42,8 @@ module PC (
                 pc = pc + 4;
             end
 
-            o_signals.valid <= 1;
             o_signals.pc <= pc;
-
             `log(("fetching insn (pc %08x) = %08x", pc, mem[pc>>2]));
-
             o_signals.insn <= mem[pc>>2];
         end
     end
