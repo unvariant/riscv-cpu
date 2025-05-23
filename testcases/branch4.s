@@ -2,7 +2,7 @@
 
 _start:
     addi a5, a5, 1
-    // beq zero, zero, next
+    beq zero, zero, next
     nop
     nop
     nop

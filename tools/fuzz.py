@@ -3,6 +3,7 @@ import json
 from hashlib import md5
 from subprocess import run
 import log
+import os
 from unicorn import (
     Uc,
     UC_ARCH_RISCV,
@@ -22,7 +23,9 @@ class Testcase:
         self.rom = self.files / "rom_file.mem"
         with open(self.path, "r") as fp:
             self.contents = fp.read().strip()
-        self.hash = md5(self.contents.encode()).hexdigest()
+        self.hash = md5(
+            str(self.path).encode() + b"/" + self.contents.encode()
+        ).hexdigest()
 
 
 class Results:
@@ -55,9 +58,13 @@ def execute_unicorn(case: Testcase):
     cpu = Uc(UC_ARCH_RISCV, UC_MODE_RISCV32)
     cpu.mem_map(CODE_ADDR, 0x1000)
     cpu.mem_map(RAM_ADDR, RAM_SIZE, UC_PROT_READ | UC_PROT_WRITE)
+    cpu.mem_map(STACK_ADDR, STACK_SIZE, UC_PROT_READ | UC_PROT_WRITE)
+
     cpu.mem_write(CODE_ADDR, code.ljust(CODE_SIZE, b"\0"))
+    cpu.mem_write(RAM_ADDR, b"\x00" * RAM_SIZE)
+    cpu.mem_write(STACK_ADDR, b"\xcc" * STACK_SIZE)
+
     cpu.mem_protect(CODE_ADDR, CODE_SIZE, CODE_PERM)
-    cpu.mem_write(RAM_ADDR, b"\0" * RAM_SIZE)
 
     for reg in REGS:
         cpu.reg_write(reg, 0)
@@ -92,6 +99,9 @@ def execute_verilator(case: Testcase):
 root = Path(__file__).parent.parent
 fuzz_dir = root / Path("fuzz")
 hash_file = fuzz_dir / "hashes"
+cc_environ = os.environ
+cc_environ.setdefault("CFLAGS", "")
+cc_environ["CFLAGS"] += " -mno-unaligned-access -O1 "
 
 REG_NAMES = [f"UC_RISCV_REG_X{i}" for i in range(32)]
 REGS = [getattr(riscv_const, name) for name in REG_NAMES]
@@ -101,9 +111,12 @@ CODE_SIZE = PAGE_SIZE
 CODE_PERM = UC_PROT_READ | UC_PROT_EXEC
 RAM_ADDR = PAGE_SIZE * 1
 RAM_SIZE = PAGE_SIZE * 1
+STACK_SIZE = PAGE_SIZE * 0x2
+STACK_ADDR = PAGE_SIZE * 0x10 - STACK_SIZE
 
 testcases_dir = root / "testcases"
-testcases = [Testcase(path) for path in testcases_dir.glob("*.s")]
+testfiles = [*testcases_dir.glob("*.s"), *testcases_dir.glob("*.c")]
+testcases = [Testcase(path) for path in testfiles]
 
 fuzz_dir.mkdir(exist_ok=True)
 for case in testcases:
@@ -126,10 +139,16 @@ for case in testcases:
 
 for case in modified_testcases:
     log.info(f"recompiling {case.path.name}")
+    if case.path.suffix == ".c":
+        env = cc_environ
+    else:
+        env = os.environ
+
     handle = run(
         ["python3", root / "tools" / "rom.py", case.path, case.rom],
         capture_output=True,
         encoding="utf-8",
+        env=env,
     )
 
     if handle.returncode != 0:

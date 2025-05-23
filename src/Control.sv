@@ -4,24 +4,20 @@ module Control (
     input  logic   clk,
     input  logic   rst,
     input  logic   stall,
-    input  Signals i_signals,
+    input  logic   flush,
+    input  Signals i_buffer,
     output Signals o_signals
 );
 
-    Insn prev_insn;
+    Signals i_current;
+    Signals i_signals;
+    assign i_signals = stall ? i_current : i_buffer;
+
     Insn insn;
-    assign insn = stall ? prev_insn : i_signals.insn;
-    logic [31:0] prev_pc;
-    logic [31:0] pc;
-    assign pc = stall ? prev_pc : i_signals.pc;
+    assign insn = i_signals.insn;
 
     always_ff @(posedge clk) begin
-        if (!stall) begin
-            prev_insn <= i_signals.insn;
-            prev_pc   <= i_signals.pc;
-        end
-
-        if (rst) begin
+        if (rst || flush) begin
             o_signals.pc    <= 0;
             o_signals.op    <= Op::Add;
             o_signals.wreg  <= 0;
@@ -33,7 +29,11 @@ module Control (
             o_signals.memw  <= 0;
             o_signals.memt  <= LoadByte;
         end else begin
-            o_signals.pc    <= pc;
+            if (!stall) begin
+                i_current <= i_buffer;
+            end
+
+            o_signals.pc    <= i_signals.pc;
             o_signals.pcsel <= insn.r.opcode == Opcode::Jalr;
             o_signals.op    <= Op::Add;
 
@@ -60,14 +60,12 @@ module Control (
                         'h3: o_signals.op <= Op::USlt;
                     endcase
 
-                    o_signals.wreg <= insn.r.rd;
-                    o_signals.asel <= Register;
-                    o_signals.bsel <= Register;
+                    o_signals.wreg  <= insn.r.rd;
+                    o_signals.wback <= 1;
+                    o_signals.asel  <= Register;
+                    o_signals.bsel  <= Register;
                 end
                 Opcode::RegImm: begin
-                    if (32'(insn) != 'h13) begin
-                        `log(("insn = %08x", 32'(insn)));
-                    end
                     case (insn.i.funct3)
                         'h0: o_signals.op <= Op::Add;
                         'h4: o_signals.op <= Op::Xor;
@@ -84,9 +82,10 @@ module Control (
                         'h3: o_signals.op <= Op::USlt;
                     endcase
 
-                    o_signals.wreg <= insn.i.rd;
-                    o_signals.asel <= Register;
-                    o_signals.bsel <= Immediate;
+                    o_signals.wreg  <= insn.i.rd;
+                    o_signals.wback <= 1;
+                    o_signals.asel  <= Register;
+                    o_signals.bsel  <= Immediate;
                 end
                 Opcode::Branch: begin
                     case (insn.b.funct3)
@@ -94,51 +93,59 @@ module Control (
                         'h6, 'h7: o_signals.op <= Op::USub;
                     endcase
 
-                    o_signals.wreg <= 0;
-                    o_signals.asel <= Register;
-                    o_signals.bsel <= Register;
+                    o_signals.wreg  <= 0;
+                    o_signals.wback <= 0;
+                    o_signals.asel  <= Register;
+                    o_signals.bsel  <= Register;
                 end
                 Opcode::Jal: begin
-                    o_signals.op   <= Op::Add;
-                    o_signals.wreg <= insn.j.rd;
-                    o_signals.asel <= ProgramCounter;
-                    o_signals.bsel <= Immediate;
+                    o_signals.op    <= Op::Add;
+                    o_signals.wreg  <= insn.j.rd;
+                    o_signals.wback <= 1;
+                    o_signals.asel  <= ProgramCounter;
+                    o_signals.bsel  <= Immediate;
                 end
                 Opcode::Jalr: begin
-                    o_signals.op   <= Op::Add;
-                    o_signals.wreg <= insn.i.rd;
-                    o_signals.asel <= ProgramCounter;
-                    o_signals.bsel <= Immediate;
+                    o_signals.op    <= Op::Add;
+                    o_signals.wreg  <= insn.i.rd;
+                    o_signals.wback <= 1;
+                    o_signals.asel  <= ProgramCounter;
+                    o_signals.bsel  <= Immediate;
                 end
                 Opcode::Load: begin
-                    o_signals.op   <= Op::Add;
-                    o_signals.wreg <= insn.i.rd;
-                    o_signals.asel <= Register;
-                    o_signals.bsel <= Immediate;
+                    o_signals.op    <= Op::Add;
+                    o_signals.wreg  <= insn.i.rd;
+                    o_signals.wback <= 1;
+                    o_signals.asel  <= Register;
+                    o_signals.bsel  <= Immediate;
                 end
                 Opcode::Store: begin
-                    o_signals.op   <= Op::Add;
-                    o_signals.wreg <= 0;
-                    o_signals.asel <= Register;
-                    o_signals.bsel <= Immediate;
+                    o_signals.op    <= Op::Add;
+                    o_signals.wreg  <= 0;
+                    o_signals.wback <= 0;
+                    o_signals.asel  <= Register;
+                    o_signals.bsel  <= Immediate;
                 end
                 Opcode::Lui: begin
-                    o_signals.op   <= Op::Add;
-                    o_signals.wreg <= insn.u.rd;
-                    o_signals.asel <= Register;
-                    o_signals.bsel <= Immediate;
+                    o_signals.op    <= Op::Add;
+                    o_signals.wreg  <= insn.u.rd;
+                    o_signals.wback <= 1;
+                    o_signals.asel  <= Register;
+                    o_signals.bsel  <= Immediate;
                 end
                 Opcode::Auipc: begin
-                    o_signals.op   <= Op::Add;
-                    o_signals.wreg <= insn.u.rd;
-                    o_signals.asel <= ProgramCounter;
-                    o_signals.bsel <= Immediate;
+                    o_signals.op    <= Op::Add;
+                    o_signals.wreg  <= insn.u.rd;
+                    o_signals.wback <= 1;
+                    o_signals.asel  <= ProgramCounter;
+                    o_signals.bsel  <= Immediate;
                 end
                 default: begin
-                    o_signals.op   <= Op::Add;
-                    o_signals.wreg <= 0;
-                    o_signals.asel <= Register;
-                    o_signals.bsel <= Register;
+                    o_signals.op    <= Op::Add;
+                    o_signals.wreg  <= 0;
+                    o_signals.wback <= 0;
+                    o_signals.asel  <= Register;
+                    o_signals.bsel  <= Register;
                 end
             endcase
 
@@ -157,7 +164,6 @@ module Control (
                     endcase
                 end
                 Opcode::Store: begin
-                    `log(("found store (funct3 = %01x)", insn.s.funct3));
                     o_signals.memr <= 0;
                     o_signals.memw <= 1;
                     case (insn.s.funct3)
@@ -165,7 +171,7 @@ module Control (
                         'h1: o_signals.memt <= StoreHalf;
                         'h2: o_signals.memt <= StoreWord;
                         default: begin
-                            `err(("invalid store funct3: %01x", insn.s.funct3));
+
                         end
                     endcase
                 end
@@ -195,10 +201,7 @@ module Control (
                         'h7: o_signals.cond <= NotCarry;
                     endcase
                 end
-                Opcode::Jal: begin
-                    o_signals.cond <= Always;
-                end
-                Opcode::Jalr: begin
+                Opcode::Jal, Opcode::Jalr: begin
                     o_signals.cond <= Always;
                 end
                 default: begin

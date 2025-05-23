@@ -49,3 +49,4 @@ def warn(msg: str):
 
 def error(msg: str):
     log.error(msg)
+    exit(1)

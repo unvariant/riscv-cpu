@@ -17,11 +17,11 @@ module clock_480p (
     logic locked;  // unsynced lock signal
 
     PLLE2_BASE #(
-        .CLKFBOUT_MULT(1),  // MULT_MASTER
+        .CLKFBOUT_MULT(MULT_MASTER),  // MULT_MASTER
         .CLKIN1_PERIOD(IN_PERIOD),
-        .CLKOUT0_DIVIDE(4),  // 10
-        .CLKOUT1_DIVIDE(1),
-        .DIVCLK_DIVIDE(1)  // DIV_MASTER
+        .CLKOUT0_DIVIDE(10),  // 10
+        .CLKOUT1_DIVIDE(2),
+        .DIVCLK_DIVIDE(DIV_MASTER)  // DIV_MASTER
     ) PLLE2_BASE_inst (
         .CLKIN1(clk_100m),
         .RST(rst),

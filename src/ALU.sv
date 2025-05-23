@@ -25,15 +25,16 @@ module ALU (
     end
 
     logic [32:0] result;
+    logic signed [32:0] s_a;
+    assign s_a = 33'(signed'(a));
+    logic signed [32:0] s_b;
+    assign s_b = 33'(signed'(b));
+    logic [32:0] u_a;
+    assign u_a = 33'(unsigned'(a));
+    logic [32:0] u_b;
+    assign u_b = 33'(unsigned'(b));
 
     always_ff @(posedge clk) begin
-        logic [32:0] s_a = 33'(signed'(a));
-        logic [32:0] s_b = 33'(signed'(b));
-        logic [32:0] u_a = 33'(unsigned'(a));
-        logic [32:0] u_b = 33'(unsigned'(b));
-
-        o_signals.pc <= i_signals.pc + 4;
-
         if (rst) begin
             // o_signals.pc    <= 0;
             // o_signals.reg2        <= 0;
@@ -57,11 +58,18 @@ module ALU (
             o_signals.memw  <= i_signals.memw;
             o_signals.memt  <= i_signals.memt;
 
+            // $display("a = 0x%0x", s_a);
+            // $display("b = 0x%0x", s_b);
+            // $display("wback = 0x%0x", i_signals.wback);
+            // $display("wreg = 0x%0x", i_signals.wreg);
+            // $display("op = %0d", i_signals.op);
+
             case (i_signals.op)
                 Op::Add: begin
                     result = s_a + s_b;
                 end
                 Op::Sub: begin
+                    // $display("cond = %0d, a = %0x, b = %0x", i_signals.cond, s_a, s_b);
                     result = s_a - s_b;
                 end
                 Op::USub: begin
@@ -77,13 +85,13 @@ module ALU (
                     result = u_a & u_b;
                 end
                 Op::Shl: begin
-                    result = u_a << u_b;
+                    result = u_a << u_b[4:0];
                 end
                 Op::Shr: begin
-                    result = u_a >> u_b;
+                    result = u_a >> u_b[4:0];
                 end
                 Op::Asr: begin
-                    result = s_a >>> u_b;
+                    result = s_a >>> u_b[4:0];
                 end
                 Op::Slt: begin
                     result = s_a - s_b;
