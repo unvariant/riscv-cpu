@@ -21,6 +21,7 @@ class Testcase:
         self.path = path
         self.files = fuzz_dir / path.stem
         self.rom = self.files / "rom_file.mem"
+        self.ram = self.files / "ram_file.mem"
         with open(self.path, "r") as fp:
             self.contents = fp.read().strip()
         self.hash = md5(
@@ -145,7 +146,7 @@ for case in modified_testcases:
         env = os.environ
 
     handle = run(
-        ["python3", root / "tools" / "rom.py", case.path, case.rom],
+        ["python3", root / "tools" / "rom.py", case.path, case.rom, case.ram],
         capture_output=True,
         encoding="utf-8",
         env=env,

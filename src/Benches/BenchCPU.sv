@@ -14,6 +14,7 @@ module BenchCPU;
     logic stall;
     logic [14:0] switches;
     logic [4:0] buttons;
+    logic [3:0] gpio;
 
     CPU cpu_i (
         .i_clk(clk),
@@ -27,10 +28,12 @@ module BenchCPU;
         .vga_b(blue),
         .o_stall(stall),
         .i_switches(switches),
-        .i_buttons(buttons)
+        .i_buttons(buttons),
+        .o_gpio(gpio)
     );
 
     int cycles = 0;
+    int fp = $fopen("dump.bin", "wb+");
 
     initial begin
         $dumpfile("sim.vcd");
@@ -50,7 +53,6 @@ module BenchCPU;
             // $display("pc = 0x%x", cpu_i.pc_i.pc);
 
             if (cpu_i.pc_i.pc == 2048 * 4) begin
-                static int fp = $fopen("dump.bin", "wb+");
                 for (int i = 0; i < $size(cpu_i.vga_i.vram); i++) begin
                     $fwrite(fp, "%x\n", cpu_i.vga_i.vram[i]);
                 end
